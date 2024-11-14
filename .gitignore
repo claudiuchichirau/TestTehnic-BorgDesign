@@ -1,0 +1,12 @@
+
+keys/openAi_key.txt
+keys/openAi_organization_id.txt
+keys/openAi_project_id.txt
+*.pyc
+nume_env/Lib/site-packages/_distutils_hack/__init__.py
+nume_env/Lib/site-packages/_distutils_hack/override.py
+/nume_env/Lib/site-packages/annotated_types-0.7.0.dist-info
+/nume_env/Lib/site-packages/annotated_types
+/nume_env/Lib
+/nume_env
+siruta.mdb
