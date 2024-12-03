@@ -27,7 +27,7 @@ def create_assistant(client, assistant_name):
     return client.beta.assistants.create(
         name=assistant_name,
         instructions="You are an expert in querying and analyzing a database stored in memory. Use your knowledge and the file_search tool to perform various SELECT queries and operations based on provided IDs and other criteria.",
-        model="gpt-3.5-turbo",
+        model="gpt-4o",
         tools=[{"type": "file_search"}],
     )
 
@@ -43,7 +43,7 @@ def create_vector_store(client, vector_store_name):
     vector_store = client.beta.vector_stores.create(name=vector_store_name)
     print(f"Vector store '{vector_store_name}' created with ID: {vector_store.id}")
     
-    file_paths = ["siruta_rez_bun.txt"]
+    file_paths = ["siruta_rez.txt"]
     file_streams = [open(path, "rb") for path in file_paths]
     
     file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
@@ -108,7 +108,6 @@ def wait_for_assistant_response(client, thread, assistant):
             print("No messages found in the thread.")
         else:
             message_content = messages[0].content[0].text
-            print("Message content:", message_content)
             
             annotations = message_content.annotations
             citations = []
@@ -118,10 +117,11 @@ def wait_for_assistant_response(client, thread, assistant):
                     cited_file = client.files.retrieve(file_citation.file_id)
                     citations.append(f"[{index}] {cited_file.filename}")
 
-            print("Message:", message_content.value)
+            print("\nMessage:\n", message_content.value)
             print("\n".join(citations))
     except Exception as e:
         print(f"An error occurred while waiting for the assistant's response: {e}")
+
 
 def main():
     api_key, organization_id, project_id = get_api_keys()
@@ -153,7 +153,9 @@ def main():
     update_assistant_with_vector_store(client, assistant, vector_store)
     
     sir_sup_code = "1017"
-    query_content = f"Return the 'DENLOC' for the record where 'SIRUTA' matches the provided SIRSUP code '{sir_sup_code}', in JSON format."
+    #sir_sup_code = "2130"
+    #sir_sup_code = "9999"   # Invalid code
+    query_content = f"Retrieve the 'DENLOC' value from the file siruta_rez.txt located in the vector storage of the attached 'Siruta Database', where the 'DENLOC' field corresponds to the record in which the 'SIRUTA' field is equal to the provided 'SIRSUP' code '{sir_sup_code}'. If no matching 'SIRSUP' code is found, return a JSON object with the message 'No matching record found for SIRSUP code {sir_sup_code}'. Do not include any additional text or explanations outside the JSON object."
     thread = create_and_poll_thread(client, assistant, vector_store.id, query_content, file_id=fileId)
     
     if thread:
